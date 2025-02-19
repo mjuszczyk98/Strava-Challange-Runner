@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
-using StravaRunner.Helpers;
 
-namespace StravaRunner.Models;
+namespace StravaRunner.Models.Strava;
 
 public class Activity
 {

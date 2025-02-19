@@ -1,4 +1,4 @@
-﻿namespace StravaRunner.Models;
+﻿namespace StravaRunner.Models.Strava;
 
 public enum SportType
 {

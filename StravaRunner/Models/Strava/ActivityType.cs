@@ -1,7 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using StravaRunner.Helpers;
-
-namespace StravaRunner.Models;
+﻿namespace StravaRunner.Models.Strava;
 
 public enum ActivityType
 {

@@ -1,9 +1,9 @@
 ﻿namespace StravaRunner.Models.Settings;
 
-public class StravaSettings
+public class StravaTokenSettings
 {
-    public required string ClientId { get; set; }
-    public required string ClientSecret { get; set; }
-    public required string AccessToken { get; set; }
-    public required string RefreshToken { get; set; }
+    public required string ClientId { get; init; }
+    public required string ClientSecret { get; init; }
+    public required string AccessToken { get; init; }
+    public required string RefreshToken { get; init; }
 }
