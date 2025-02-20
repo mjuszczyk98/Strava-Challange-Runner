@@ -14,4 +14,7 @@ public class RefreshTokenResponse
     public int ExpiresAt { get; set; }
     [JsonProperty("expires_in")]
     public int ExpiresIn { get; set; }
+    
+    [JsonProperty("athlete")]
+    public Athlete? Athlete { get; set; }
 }
