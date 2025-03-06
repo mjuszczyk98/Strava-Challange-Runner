@@ -2,6 +2,8 @@ namespace StravaRunner.Core.Models.Settings;
 
 public class SmtpSettings
 {
+    public required string DefaultFromEmail { get; set; }
+    public required string DefaultReplyToEmail { get; set; }
     public required string SmtpServer { get; set; }
     public required int Port { get; set; }
     public required bool EnableSsl { get; set; }

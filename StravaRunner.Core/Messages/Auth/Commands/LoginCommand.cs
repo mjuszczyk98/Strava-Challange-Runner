@@ -48,11 +48,10 @@ public class LoginCommandHandler(
             : GetAuthenticateUrl(authorizeToken);
 
         await emailService.SendEmailAsync(
-            "michal@juszczyk.it", 
-            "mc.juszczyk98@gmail.com", 
-            "StravaRunner login request", 
+            request.UserEmail,
+            EmailConstants.LoginSubject, 
             authorizeUrl, 
-            cancellationToken);
+            cancellationToken: cancellationToken);
     }
     
     private string GetStravaAuthorizeUrl(string context)

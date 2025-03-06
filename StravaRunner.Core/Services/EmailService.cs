@@ -7,8 +7,7 @@ namespace StravaRunner.Core.Services;
 
 public interface IEmailService
 {
-    Task SendEmailAsync(string from, string recipient, string subject, string body,
-        CancellationToken cancellationToken = default);
+    Task SendEmailAsync(string recipient, string subject, string body, CancellationToken cancellationToken = default);
 
     Task SendEmailAsync(MailMessage mailMessage, CancellationToken cancellationToken = default);
 }
@@ -17,12 +16,22 @@ public class EmailService(IOptions<SmtpSettings> smtpSettings) : IEmailService
 {
     private readonly SmtpSettings _smtpSettings = smtpSettings.Value;
 
-    public async Task SendEmailAsync(string from, string recipient, string subject, string body,
+    public async Task SendEmailAsync(string recipient, string subject, string body,
         CancellationToken cancellationToken = default)
     {
         using var smtpClient = GetSmtpClient();
+
+        var mailMessage = new MailMessage
+        {
+            From = new MailAddress(_smtpSettings.DefaultFromEmail),
+            Subject = subject,
+            Body = body,
+            ReplyToList = { new MailAddress(_smtpSettings.DefaultReplyToEmail) }
+        };
         
-        await smtpClient.SendMailAsync(from, recipient, subject, body, cancellationToken);
+        mailMessage.To.Add(recipient);
+        
+        await smtpClient.SendMailAsync(mailMessage, cancellationToken);
     }
     
     public async Task SendEmailAsync(MailMessage mailMessage, CancellationToken cancellationToken = default)
