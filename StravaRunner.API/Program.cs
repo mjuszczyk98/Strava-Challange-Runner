@@ -1,4 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using StravaRunner.API.Endpoints;
 using StravaRunner.Core;
 using StravaRunner.Core.Models.Settings;
@@ -16,35 +21,49 @@ builder.Services.Configure<StravaAuthSettings>(builder.Configuration.GetSection(
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection(nameof(MongoDbSettings)));
 builder.Services.Configure<SecuritySettings>(builder.Configuration.GetSection(nameof(SecuritySettings)));
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection(nameof(SmtpSettings)));
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
+builder.Services.Configure<EnvSettings>(builder.Configuration.GetSection(nameof(EnvSettings)));
 
 builder.Services
     .ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddMemoryCache();
 
+ConfigureAuthentication();
+
+
 var app = builder.Build();
 
-// app.MapGet("/activities",
-//     async (IStravaService stravaService, IMemoryCache cache) =>
-//     {
-//         const string clubId = "1401067";
-//         const string cacheKey = $"strava-activities-{clubId}";
-//
-//         if (cache.TryGetValue(cacheKey, out var activityList))
-//         {
-//             return activityList;
-//         }
-//         
-//         var loadedActivities = await stravaService.GetActivitiesAsync(clubId);
-//         var cacheEntryOptions = new MemoryCacheEntryOptions
-//         {
-//             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
-//         };
-//         cache.Set(cacheKey, loadedActivities, cacheEntryOptions);
-//         
-//         return loadedActivities;
-//     });
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapAuthEndpoints();
 
+app.MapGet("/", () => "Hello World!").RequireAuthorization();
+
 app.Run();
+return;
+
+void ConfigureAuthentication()
+{
+    var jwtSettings = builder.Configuration.GetRequiredSection(nameof(JwtSettings));
+    builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidAudience = jwtSettings["Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+            };
+        });
+
+    builder.Services.AddAuthorization();
+}

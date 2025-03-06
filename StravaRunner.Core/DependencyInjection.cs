@@ -29,9 +29,10 @@ public static class DependencyInjection
             return client.GetDatabase(settings.DatabaseName);
         });
 
-        services.AddScoped<IEncryptionService, EncryptionService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IEncryptionService, EncryptionService>();
         services.AddScoped<IStravaApiService, StravaApiService>();
+        services.AddScoped<ITokenService, TokenService>();
 
         return services;
     }
